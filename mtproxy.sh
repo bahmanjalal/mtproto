@@ -101,6 +101,9 @@ install(){
     make && cd objs/bin
     cp -f $WORKDIR/MTProxy/objs/bin/mtproto-proxy $WORKDIR
     cd $WORKDIR
+  else
+    wget https://github.com/ellermister/mtproxy/releases/download/0.02/mtproto-proxy -O mtproto-proxy -q
+    chmod +x mtproto-proxy
   fi
 }
 
@@ -157,7 +160,7 @@ config_mtp(){
   # domain
   while true
   do
-  default_domain="google.com"
+  default_domain="azure.microsoft.com"
   echo -e "请输入一个需要伪装的域名："
   read -p "(默认域名: ${default_domain}):" input_domain
   [ -z "${input_domain}" ] && input_domain=${default_domain}
@@ -260,7 +263,7 @@ run_mtp(){
     fi
     tag_arg=""
     [[ -n "$proxy_tag" ]] && tag_arg="-P $proxy_tag"
-    ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info >/dev/null 2>&1 &
+    ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info >/dev/null 2>&1 &
     
     echo $!>$pid_file
     sleep 2
@@ -282,8 +285,8 @@ debug_mtp(){
   [[ -n "$proxy_tag" ]] && tag_arg="-P $proxy_tag"
   echo "当前正在运行调试模式："
   echo -e "\t你随时可以通过 Ctrl+C 进行取消操作"
-  echo " ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
-  ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info
+  echo " ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
+  ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info
 }
 
 stop_mtp(){
@@ -299,7 +302,8 @@ stop_mtp(){
 fix_mtp(){
   if [ `id -u` != 0 ];then
     echo -e "> ※ (该功能仅限 root 用户执行)"
-  fi	
+  fi
+  
   print_line
   echo -e "> 开始安装/更新iproute2..."
   print_line
@@ -348,6 +352,7 @@ else
     print_line
     info_mtp
     print_line
+    echo -e "脚本源码：https://github.com/ellermister/mtproxy"
     echo -e "配置文件: $WORKDIR/mtp_config"
     echo -e "卸载方式：直接删除当前目录下文件即可"
     echo "使用方式:"
