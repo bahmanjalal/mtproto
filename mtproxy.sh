@@ -299,8 +299,6 @@ stop_mtp(){
   fi
 }
 
-
-
 param=$1
 if [[ "start" == $param ]];then
   echo "即将：启动脚本";
@@ -327,6 +325,7 @@ else
     print_line
     info_mtp
     print_line
+    echo -e "脚本源码：https://github.com/ellermister/mtproxy"
     echo -e "配置文件: $WORKDIR/mtp_config"
     echo -e "卸载方式：直接删除当前目录下文件即可"
     echo "使用方式:"
