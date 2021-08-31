@@ -102,7 +102,7 @@ install(){
     cp -f $WORKDIR/MTProxy/objs/bin/mtproto-proxy $WORKDIR
     cd $WORKDIR
   else
-    https://raw.githubusercontent.com/bahmanjalal/mtproto/master/mtproto-proxy -O mtproto-proxy -q
+    wget https://raw.githubusercontent.com/bahmanjalal/mtproto/master/mtproto-proxy -O mtproto-proxy -q
     chmod +x mtproto-proxy
   fi
 }
