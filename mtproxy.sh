@@ -260,7 +260,7 @@ run_mtp(){
     fi
     tag_arg=""
     [[ -n "$proxy_tag" ]] && tag_arg="-P $proxy_tag"
-    ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info >/dev/null 2>&1 &
+    ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info >/dev/null 2>&1 &
     
     echo $!>$pid_file
     sleep 2
@@ -282,8 +282,8 @@ debug_mtp(){
   [[ -n "$proxy_tag" ]] && tag_arg="-P $proxy_tag"
   echo "当前正在运行调试模式："
   echo -e "\t你随时可以通过 Ctrl+C 进行取消操作"
-  echo " ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
-  ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info
+  echo " ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
+  ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info
 }
 
 stop_mtp(){
@@ -295,6 +295,53 @@ stop_mtp(){
     echo "停止任务失败"
   fi
 }
+
+fix_mtp(){
+  if [ `id -u` != 0 ];then
+    echo -e "> ※ (该功能仅限 root 用户执行)"
+  fi	
+
+  print_line
+  echo -e "> 开始清空防火墙规则/停止防火墙/卸载防火墙..."
+  print_line
+
+  if check_sys packageManager yum; then
+    systemctl stop firewalld.service
+    systemctl disable firewalld.service
+    systemctl stop iptables
+    systemctl disable iptables
+    service stop iptables
+    yum remove -y iptables
+    yum remove -y firewalld
+  elif check_sys packageManager apt; then
+    iptables -F
+    iptables -t nat -F
+    iptables -P ACCEPT
+    iptables -t nat -P ACCEPT
+    service stop iptables
+    apt-get remove -y iptables
+    ufw disable
+  fi
+  
+  print_line
+  echo -e "> 开始安装/更新iproute2..."
+  print_line
+  
+  if check_sys packageManager yum; then
+    yum install -y epel-release
+    yum update -y
+	yum install -y iproute
+  elif check_sys packageManager apt; then
+    apt-get install -y epel-release
+    apt-get update -y
+	apt-get install -y iproute2
+  fi
+  
+  echo -e "< 处理完毕，如有报错忽略即可..."
+  echo -e "< 如遇到端口冲突，请自行关闭相关程序"
+}
+
+
 
 param=$1
 if [[ "start" == $param ]];then
@@ -309,6 +356,8 @@ elif  [[ "debug" == $param ]];then
 elif  [[ "restart" == $param ]];then
   stop_mtp
   run_mtp
+elif  [[ "fix" == $param ]];then
+  fix_mtp
 else
   if [ ! -f "$WORKDIR/mtp_config" ] && [ ! -f "$WORKDIR/mtproto-proxy" ];then
     echo "MTProxyTLS一键安装运行绿色脚本"
@@ -330,5 +379,6 @@ else
     echo -e "\t调试运行 bash $0 debug"
     echo -e "\t停止服务 bash $0 stop"
     echo -e "\t重启服务 bash $0 restart"
+    echo -e "\t修复常见问题 bash $0 fix"
   fi
 fi
