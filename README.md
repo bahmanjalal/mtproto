@@ -11,7 +11,7 @@ Execute the following code to install
 
 ```bash
 mkdir /home/mtproxy && cd /home/mtproxy
-curl -s -o mtproxy.sh https://raw.githubusercontent.com/bahmanjalal/mtproto/master/mtproxy.sh && chmod +x mtproxy.sh && bash mtproxy.sh
+curl -s -o mtproxy.sh https://raw.githubusercontent.com/bahmanjalal/mtproto/master/mtproto.sh && chmod +x mtproxy.sh && bash mtproxy.sh
 ```
 
  ![mtproxy.sh](https://raw.githubusercontent.com/bahmanjalal/mtproto/main/mtproxy.jpg)
