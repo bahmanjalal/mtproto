@@ -160,7 +160,7 @@ config_mtp(){
   # domain
   while true
   do
-  default_domain="azure.microsoft.com"
+  default_domain="google.com"
   echo -e "请输入一个需要伪装的域名："
   read -p "(默认域名: ${default_domain}):" input_domain
   [ -z "${input_domain}" ] && input_domain=${default_domain}
@@ -299,51 +299,6 @@ stop_mtp(){
   fi
 }
 
-fix_mtp(){
-  if [ `id -u` != 0 ];then
-    echo -e "> ※ (该功能仅限 root 用户执行)"
-  fi	
-
-  print_line
-  echo -e "> 开始清空防火墙规则/停止防火墙/卸载防火墙..."
-  print_line
-
-  if check_sys packageManager yum; then
-    systemctl stop firewalld.service
-    systemctl disable firewalld.service
-    systemctl stop iptables
-    systemctl disable iptables
-    service stop iptables
-    yum remove -y iptables
-    yum remove -y firewalld
-  elif check_sys packageManager apt; then
-    iptables -F
-    iptables -t nat -F
-    iptables -P ACCEPT
-    iptables -t nat -P ACCEPT
-    service stop iptables
-    apt-get remove -y iptables
-    ufw disable
-  fi
-  
-  print_line
-  echo -e "> 开始安装/更新iproute2..."
-  print_line
-  
-  if check_sys packageManager yum; then
-    yum install -y epel-release
-    yum update -y
-	yum install -y iproute
-  elif check_sys packageManager apt; then
-    apt-get install -y epel-release
-    apt-get update -y
-	apt-get install -y iproute2
-  fi
-  
-  echo -e "< 处理完毕，如有报错忽略即可..."
-  echo -e "< 如遇到端口冲突，请自行关闭相关程序"
-}
-
 
 
 param=$1
@@ -382,6 +337,5 @@ else
     echo -e "\t调试运行 bash $0 debug"
     echo -e "\t停止服务 bash $0 stop"
     echo -e "\t重启服务 bash $0 restart"
-    echo -e "\t修复常见问题 bash $0 fix"
   fi
 fi
