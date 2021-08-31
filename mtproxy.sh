@@ -263,7 +263,7 @@ run_mtp(){
     fi
     tag_arg=""
     [[ -n "$proxy_tag" ]] && tag_arg="-P $proxy_tag"
-    ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info >/dev/null 2>&1 &
+    ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info >/dev/null 2>&1 &
     
     echo $!>$pid_file
     sleep 2
@@ -285,8 +285,8 @@ debug_mtp(){
   [[ -n "$proxy_tag" ]] && tag_arg="-P $proxy_tag"
   echo "当前正在运行调试模式："
   echo -e "\t你随时可以通过 Ctrl+C 进行取消操作"
-  echo " ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
-  ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info
+  echo " ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
+  ./mtproto-proxy -u nobody -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info
 }
 
 stop_mtp(){
