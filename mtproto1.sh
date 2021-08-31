@@ -34,13 +34,13 @@ check_sys(){
     fi
 
     if [[ "${checkType}" == "sysRelease" ]]; then
-        if ["${value}" == "${release}" ]; then
+        if [ "${value}" == "${release}" ]; then
             return 0
         else
             return 1
         fi
     elif [[ "${checkType}" == "packageManager" ]]; then
-        if ["${value}" == "${systemPackage}" ]; then
+        if [ "${value}" == "${systemPackage}" ]; then
             return 0
         else
             return 1
@@ -49,8 +49,8 @@ check_sys(){
 }
 
 function pid_exists(){
-  local exists=`ps aux | awk'{print $2}'| grep -w $1`
-  if [[! $exists ]]
+  local exists=`ps aux | awk '{print $2}'| grep -w $1`
+  if [[ ! $exists ]]
   then
     return 0;
   else
@@ -60,13 +60,13 @@ function pid_exists(){
 
 install(){
   cd $WORKDIR
-  if [! -d "./pid" ]; then
+  if [ ! -d "./pid" ];then
     mkdir "./pid"
   fi
 
   xxd_status=1
   echo a|xxd -ps &> /dev/null
-  if [$? != "0" ]; then
+  if [ $? != "0" ];then
     xxd_status=0
   fi
 
@@ -74,57 +74,54 @@ install(){
     if check_sys packageManager yum; then
       yum install -y openssl-devel zlib-devel iproute
       yum groupinstall -y "Development Tools"
-      if [$xxd_status == 0 ]; then
+      if [ $xxd_status == 0 ];then
         yum install -y vim-common
       fi
     elif check_sys packageManager apt; then
       apt-get -y update
       apt install -y git curl build-essential libssl-dev zlib1g-dev iproute2
-      if [$xxd_status == 0 ]; then
+      if [ $xxd_status == 0 ];then
         apt install -y vim-common
       fi
-    fi
+    fi 
   else
-    if check_sys packageManager yum && [$xxd_status == 0 ]; then
+    if check_sys packageManager yum &&  [ $xxd_status == 0 ]; then
       yum install -y vim-common
-    elif check_sys packageManager apt && [$xxd_status == 0 ]; then
+    elif check_sys packageManager apt &&  [ $xxd_status == 0 ]; then
       apt-get -y update
       apt install -y vim-common
     fi
   fi
 
-  if [[ "`uname -m`" != "x86_64" ]]; then
-    if [! -d'MTProxy' ]; then
+  if [[ "`uname -m`" != "x86_64" ]];then
+    if [ ! -d 'MTProxy' ];then
       git clone https://github.com/TelegramMessenger/MTProxy
     fi;
     cd MTProxy
     make && cd objs/bin
     cp -f $WORKDIR/MTProxy/objs/bin/mtproto-proxy $WORKDIR
     cd $WORKDIR
-  else
-    wget https://github.com/ellermister/mtproxy/releases/download/0.02/mtproto-proxy -O mtproto-proxy -q
-    chmod +x mtproto-proxy
   fi
 }
 
 
 print_line(){
-  echo -e "========================================"
+  echo -e "========================================="
 }
 
 
 config_mtp(){
   cd $WORKDIR
-  echo -e "Detected that your configuration file does not exist, and guide you to generate it!" && print_line
+  echo -e "检测到您的配置文件不存在, 为您指引生成!" && print_line
   while true
   do
   default_port=443
-  echo -e "Please enter a client connection port [1-65535]"
-  read -p "(default port: ${default_port}):" input_port
-  [-z "${input_port}"] && input_port=${default_port}
+  echo -e "请输入一个客户端连接端口 [1-65535]"
+  read -p "(默认端口: ${default_port}):" input_port
+  [ -z "${input_port}" ] && input_port=${default_port}
   expr ${input_port} + 1 &>/dev/null
-  if [$? -eq 0 ]; then
-      if [${input_port} -ge 1] && [${input_port} -le 65535] && [${input_port:0:1} != 0 ]; then
+  if [ $? -eq 0 ]; then
+      if [ ${input_port} -ge 1 ] && [ ${input_port} -le 65535 ] && [ ${input_port:0:1} != 0 ]; then
           echo
           echo "---------------------------"
           echo "port = ${input_port}"
@@ -133,19 +130,19 @@ config_mtp(){
           break
       fi
   fi
-  echo -e "[\033[33m error\033[0m] Please re-enter a client connection port [1-65535]"
+  echo -e "[\033[33m错误\033[0m] 请重新输入一个客户端连接端口 [1-65535]"
   done
 
-  # Management port
+  # 管理端口
   while true
   do
   default_manage=8888
-  echo -e "Please enter a management port [1-65535]"
-  read -p "(default port: ${default_manage}):" input_manage_port
-  [-z "${input_manage_port}"] && input_manage_port=${default_manage}
+  echo -e "请输入一个管理端口 [1-65535]"
+  read -p "(默认端口: ${default_manage}):" input_manage_port
+  [ -z "${input_manage_port}" ] && input_manage_port=${default_manage}
   expr ${input_manage_port} + 1 &>/dev/null
-  if [$? -eq 0] && [$input_manage_port -ne $input_port ]; then
-      if [${input_manage_port} -ge 1] && [${input_manage_port} -le 65535] && [${input_manage_port:0:1} != 0 ]; then
+  if [ $? -eq 0 ] && [ $input_manage_port -ne $input_port ]; then
+      if [ ${input_manage_port} -ge 1 ] && [ ${input_manage_port} -le 65535 ] && [ ${input_manage_port:0:1} != 0 ]; then
           echo
           echo "---------------------------"
           echo "manage port = ${input_manage_port}"
@@ -154,45 +151,45 @@ config_mtp(){
           break
       fi
   fi
-  echo -e "[\033[33m error\033[0m] Please re-enter a management port [1-65535]"
+  echo -e "[\033[33m错误\033[0m] 请重新输入一个管理端口 [1-65535]"
   done
 
   # domain
   while true
   do
   default_domain="google.com"
-  echo -e "Please enter a domain name that needs to be disguised:"
-  read -p "(default domain name: ${default_domain}):" input_domain
-  [-z "${input_domain}"] && input_domain=${default_domain}
+  echo -e "请输入一个需要伪装的域名："
+  read -p "(默认域名: ${default_domain}):" input_domain
+  [ -z "${input_domain}" ] && input_domain=${default_domain}
   http_code=$(curl -I -m 10 -o /dev/null -s -w %{http_code} $input_domain)
-  if [$http_code -eq "200"] || [$http_code -eq "302"] || [$http_code -eq "301" ]; then
+  if [ $http_code -eq "200" ] || [ $http_code -eq "302" ] || [ $http_code -eq "301" ]; then
     echo
     echo "---------------------------"
-    echo "Disguise domain name = ${input_domain}"
+    echo "伪装域名 = ${input_domain}"
     echo "---------------------------"
     echo
     break
   fi
-  echo -e "[\033[33m status code: ${http_code} error\033[0m] The domain name cannot be accessed, please re-enter or change the domain name!"
+  echo -e "[\033[33m状态码：${http_code}错误\033[0m] 域名无法访问,请重新输入或更换域名!"
   done
   
    # config info
   public_ip=$(curl -s https://api.ip.sb/ip --ipv4)
-  [-z "$public_ip"] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
+  [ -z "$public_ip" ] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
   secret=$(head -c 16 /dev/urandom | xxd -ps)
 
   # proxy tag
   while true
   do
   default_tag=""
-  echo -e "Please enter the TAG you need to promote:"
-  echo -e "If not, please contact @MTProxybot to further create your TAG, you may need the following information:"
+  echo -e "请输入你需要推广的TAG："
+  echo -e "若没有,请联系 @MTProxybot 进一步创建你的TAG, 可能需要信息如下："
   echo -e "IP: ${public_ip}"
   echo -e "PORT: ${input_port}"
-  echo -e "SECRET (you can fill in casually): ${secret}"
-  read -p "(leave blank to skip):" input_tag
-  [-z "${input_tag}"] && input_tag=${default_tag}
-  if [-z "$input_tag"] || [[ "$input_tag" =~ ^[A-Za-z0-9]{32}$ ]]; then
+  echo -e "SECRET(可以随便填): ${secret}"
+  read -p "(留空则跳过):" input_tag
+  [ -z "${input_tag}" ] && input_tag=${default_tag}
+  if [ -z "$input_tag" ] || [[ "$input_tag" =~ ^[A-Za-z0-9]{32}$ ]]; then
     echo
     echo "---------------------------"
     echo "PROXY TAG = ${input_tag}"
@@ -200,7 +197,7 @@ config_mtp(){
     echo
     break
   fi
-  echo -e "[\033[33m error\033[0m] TAG format is incorrect!"
+  echo -e "[\033[33m错误\033[0m] TAG格式不正确!"
   done
 
   curl -s https://core.telegram.org/getProxySecret -o proxy-secret
@@ -213,13 +210,13 @@ web_port=${input_manage_port}
 domain="${input_domain}"
 proxy_tag="${input_tag}"
 EOF
-  echo -e "The configuration has been generated!"
+  echo -e "配置已经生成完毕!"
 }
 
 status_mtp(){
-  if [-f $pid_file ]; then
+  if [ -f $pid_file ];then
     pid_exists `cat $pid_file`
-    if [[ $? == 1 ]]; then
+    if [[ $? == 1 ]];then
       return 1
     fi
   fi
@@ -228,20 +225,20 @@ status_mtp(){
 
 info_mtp(){
   status_mtp
-  if [$? == 1 ]; then
+  if [ $? == 1 ];then
     source ./mtp_config
     public_ip=$(curl -s https://api.ip.sb/ip --ipv4)
-    [-z "$public_ip"] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
-    domain_hex=$(xxd -pu <<< $domain | sed's/0a//g')
+    [ -z "$public_ip" ] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
+    domain_hex=$(xxd -pu <<< $domain | sed 's/0a//g')
     client_secret="ee${secret}${domain_hex}"
-    echo -e "TMProxy+TLS proxy: \033[32m running\033[0m"
-    echo -e "Server IP: \033[31m$public_ip\033[0m"
-    echo -e "Server port: \033[31m$port\033[0m"
-    echo -e "MTProxy Secret: \033[31m$client_secret\033[0m"
-    echo -e "TG one-key link: https://t.me/proxy?server=${public_ip}&port=${port}&secret=${client_secret}"
-    echo -e "TG one-key link: tg://proxy?server=${public_ip}&port=${port}&secret=${client_secret}"
+    echo -e "TMProxy+TLS代理: \033[32m运行中\033[0m"
+    echo -e "服务器IP：\033[31m$public_ip\033[0m"
+    echo -e "服务器端口：\033[31m$port\033[0m"
+    echo -e "MTProxy Secret:  \033[31m$client_secret\033[0m"
+    echo -e "TG一键链接: https://t.me/proxy?server=${public_ip}&port=${port}&secret=${client_secret}"
+    echo -e "TG一键链接: tg://proxy?server=${public_ip}&port=${port}&secret=${client_secret}"
   else
-    echo -e "TMProxy+TLS proxy: \033[33m has stopped\033[0m"
+    echo -e "TMProxy+TLS代理: \033[33m已停止\033[0m"
   fi
 }
 
@@ -249,16 +246,16 @@ info_mtp(){
 run_mtp(){
   cd $WORKDIR
   status_mtp
-  if [$? == 1 ]; then
-    echo -e "Reminder: \033[33mMTProxy is already running, please do not run it again!\033[0m"
+  if [ $? == 1 ];then
+    echo -e "提醒：\033[33mMTProxy已经运行，请勿重复运行!\033[0m"
   else
     curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf
     source ./mtp_config
-    nat_ip=$(echo $(ip a | grep inet | grep -v 127.0.0.1 | grep -v inet6 | awk'{print $2}' | cut -d "/" -f1 |awk'NR==1 {print $1}'))
+    nat_ip=$(echo $(ip a | grep inet | grep -v 127.0.0.1 | grep -v inet6 | awk '{print $2}' | cut -d "/" -f1 |awk 'NR==1 {print $1}'))
     public_ip=`curl -s https://api.ip.sb/ip --ipv4`
-    [-z "$public_ip"] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
+    [ -z "$public_ip" ] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
     nat_info=""
-    if [[ $nat_ip != $public_ip ]]; then
+    if [[ $nat_ip != $public_ip ]];then
       nat_info="--nat-info ${nat_ip}:${public_ip}"
     fi
     tag_arg=""
@@ -274,18 +271,18 @@ run_mtp(){
 debug_mtp(){
   cd $WORKDIR
   source ./mtp_config
-  nat_ip=$(echo $(ip a | grep inet | grep -v 127.0.0.1 | grep -v inet6 | awk'{print $2}' | cut -d "/" -f1 |awk'NR==1 {print $1}'))
+  nat_ip=$(echo $(ip a | grep inet | grep -v 127.0.0.1 | grep -v inet6 | awk '{print $2}' | cut -d "/" -f1 |awk 'NR==1 {print $1}'))
   public_ip=`curl -s https://api.ip.sb/ip --ipv4`
-  [-z "$public_ip"] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
+  [ -z "$public_ip" ] && public_ip=$(curl -s ipinfo.io/ip --ipv4)
   nat_info=""
-  if [[ $nat_ip != $public_ip ]]; then
+  if [[ $nat_ip != $public_ip ]];then
       nat_info="--nat-info ${nat_ip}:${public_ip}"
   fi
   tag_arg=""
   [[ -n "$proxy_tag" ]] && tag_arg="-P $proxy_tag"
-  echo "The debugging mode is currently running:"
-  echo -e "\tYou can use Ctrl+C to cancel the operation at any time"
-  echo "./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
+  echo "当前正在运行调试模式："
+  echo -e "\t你随时可以通过 Ctrl+C 进行取消操作"
+  echo " ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info"
   ./mtproto-proxy -u bahtah -p $web_port -H $port -S $secret --aes-pwd proxy-secret proxy-multi.conf -M 1 $tag_arg --domain $domain $nat_info
 }
 
@@ -295,49 +292,69 @@ stop_mtp(){
   pid_exists $pid
   if [[ $pid == 1 ]]
   then
-    echo "Failed to stop the task"
+    echo "停止任务失败"
   fi
 }
 
 fix_mtp(){
-  if [`id -u` != 0 ]; then
-    echo -e "> ※ (This function can only be executed by root users)"
-  fi
-
-  
+  if [ `id -u` != 0 ];then
+    echo -e "> ※ (该功能仅限 root 用户执行)"
+  fi	
   print_line
-  echo -e "> Start to install/update iproute2..."
+  echo -e "> 开始安装/更新iproute2..."
   print_line
   
   if check_sys packageManager yum; then
     yum install -y epel-release
     yum update -y
-yum install -y iproute
+	yum install -y iproute
   elif check_sys packageManager apt; then
     apt-get install -y epel-release
     apt-get update -y
-apt-get install -y iproute2
+	apt-get install -y iproute2
   fi
   
-  echo -e "< Processing is complete, if there is an error, ignore it..."
-  echo -e "<If you encounter port conflicts, please close related programs by yourself"
+  echo -e "< 处理完毕，如有报错忽略即可..."
+  echo -e "< 如遇到端口冲突，请自行关闭相关程序"
 }
 
 
 
 param=$1
-if [[ "start" == $param ]]; then
-  echo "Coming soon: start script";
+if [[ "start" == $param ]];then
+  echo "即将：启动脚本";
   run_mtp
-elif [[ "stop" == $param ]]; then
-  echo "About to: stop the script";
+elif  [[ "stop" == $param ]];then
+  echo "即将：停止脚本";
   stop_mtp;
-elif [[ "debug" == $param ]]; then
-  echo "Coming soon: debug and run";
+elif  [[ "debug" == $param ]];then
+  echo "即将：调试运行";
   debug_mtp;
-elif [[ "restart" == $param ]]; then
+elif  [[ "restart" == $param ]];then
   stop_mtp
   run_mtp
-elif [[ "fix" == $param ]]; then
+elif  [[ "fix" == $param ]];then
   fix_mtp
-fi 
+else
+  if [ ! -f "$WORKDIR/mtp_config" ] && [ ! -f "$WORKDIR/mtproto-proxy" ];then
+    echo "MTProxyTLS一键安装运行绿色脚本"
+    print_line
+    install
+    config_mtp
+    run_mtp
+  else
+    [ ! -f "$WORKDIR/mtp_config" ] && config_mtp
+    echo "MTProxyTLS一键安装运行绿色脚本"
+    print_line
+    info_mtp
+    print_line
+    echo -e "配置文件: $WORKDIR/mtp_config"
+    echo -e "卸载方式：直接删除当前目录下文件即可"
+    echo "使用方式:"
+    echo -e "\t启动服务 bash $0 start"
+    echo -e "\t调试运行 bash $0 debug"
+    echo -e "\t停止服务 bash $0 stop"
+    echo -e "\t重启服务 bash $0 restart"
+    echo -e "\t修复常见问题 bash $0 fix"
+  fi
+fi
