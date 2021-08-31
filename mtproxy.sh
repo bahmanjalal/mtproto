@@ -101,6 +101,9 @@ install(){
     make && cd objs/bin
     cp -f $WORKDIR/MTProxy/objs/bin/mtproto-proxy $WORKDIR
     cd $WORKDIR
+  else
+    wget https://github.com/ellermister/mtproxy/releases/download/0.02/mtproto-proxy -O mtproto-proxy -q
+    chmod +x mtproto-proxy
   fi
 }
 
@@ -157,7 +160,7 @@ config_mtp(){
   # domain
   while true
   do
-  default_domain="google.com"
+  default_domain="azure.microsoft.com"
   echo -e "请输入一个需要伪装的域名："
   read -p "(默认域名: ${default_domain}):" input_domain
   [ -z "${input_domain}" ] && input_domain=${default_domain}
