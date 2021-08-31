@@ -102,7 +102,7 @@ install(){
     cp -f $WORKDIR/MTProxy/objs/bin/mtproto-proxy $WORKDIR
     cd $WORKDIR
   else
-    https://github.com/ellermister/mtproxy/releases/download/0.02/mtproto-proxy -O mtproto-proxy -q
+    https://raw.githubusercontent.com/bahmanjalal/mtproto/master/mtproto-proxy -O mtproto-proxy -q
     chmod +x mtproto-proxy
   fi
 }
@@ -314,8 +314,6 @@ elif  [[ "debug" == $param ]];then
 elif  [[ "restart" == $param ]];then
   stop_mtp
   run_mtp
-elif  [[ "fix" == $param ]];then
-  fix_mtp
 else
   if [ ! -f "$WORKDIR/mtp_config" ] && [ ! -f "$WORKDIR/mtproto-proxy" ];then
     echo "MTProxyTLS一键安装运行绿色脚本"
