@@ -299,29 +299,6 @@ stop_mtp(){
   fi
 }
 
-fix_mtp(){
-  if [ `id -u` != 0 ];then
-    echo -e "> ※ (该功能仅限 root 用户执行)"
-  fi
-  
-  print_line
-  echo -e "> 开始安装/更新iproute2..."
-  print_line
-  
-  if check_sys packageManager yum; then
-    yum install -y epel-release
-    yum update -y
-	yum install -y iproute
-  elif check_sys packageManager apt; then
-    apt-get install -y epel-release
-    apt-get update -y
-	apt-get install -y iproute2
-  fi
-  
-  echo -e "< 处理完毕，如有报错忽略即可..."
-  echo -e "< 如遇到端口冲突，请自行关闭相关程序"
-}
-
 
 
 param=$1
@@ -337,8 +314,6 @@ elif  [[ "debug" == $param ]];then
 elif  [[ "restart" == $param ]];then
   stop_mtp
   run_mtp
-elif  [[ "fix" == $param ]];then
-  fix_mtp
 else
   if [ ! -f "$WORKDIR/mtp_config" ] && [ ! -f "$WORKDIR/mtproto-proxy" ];then
     echo "MTProxyTLS一键安装运行绿色脚本"
